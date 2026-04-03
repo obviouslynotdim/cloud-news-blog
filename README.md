@@ -7,8 +7,16 @@ Production-safe starter for a cloud computing project using:
 ## Project Structure
 
 - `app/` - Express application
-- `terraform/` - Infrastructure as code
+- `terraform/` - Infrastructure as code (tutorial-style root + custom modules)
 - `docs/` - Supporting project docs
+
+Terraform root layout:
+- `terraform/versions.tf` - Terraform and provider version constraints
+- `terraform/main.tf` - Provider configuration and module wiring
+- `terraform/variables.tf` - Input variables
+- `terraform/outputs.tf` - Output values
+- `terraform/userdata.sh` - EC2 bootstrap script
+- `terraform/modules/*` - Reusable infrastructure modules
 
 ## Production Criteria Baseline
 
@@ -44,7 +52,7 @@ This repository is prepared to avoid secret leaks on first commit:
 2. Initialize and validate:
 
 	terraform init
-	terraform fmt
+	terraform fmt -recursive
 	terraform validate
 
 3. Set production values safely:
