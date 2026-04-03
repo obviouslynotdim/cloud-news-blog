@@ -1,0 +1,87 @@
+# Cloud News Blog
+
+Production-safe starter for a cloud computing project using:
+- Node.js + Express app
+- Terraform-managed AWS infrastructure
+
+## Project Structure
+
+- `app/` - Express application
+- `terraform/` - Infrastructure as code
+- `docs/` - Supporting project docs
+
+## Production Criteria Baseline
+
+This repository is prepared to avoid secret leaks on first commit:
+- `.gitignore` excludes Terraform state, env files, keys, and local artifacts.
+- App config is environment-variable based (`PORT`, `NODE_ENV`).
+- Terraform resources use variables, not hardcoded credentials.
+- S3 has encryption + public access block enabled.
+- EC2 enforces IMDSv2 and encrypted root disk.
+
+## App Quick Start
+
+1. Install dependencies:
+
+	cd app
+	npm install
+
+2. Run app:
+
+	npm start
+
+3. Test:
+
+- `http://localhost:3000/`
+- `http://localhost:3000/health`
+
+## Terraform Quick Start
+
+1. Move to Terraform directory:
+
+	cd terraform
+
+2. Initialize and validate:
+
+	terraform init
+	terraform fmt
+	terraform validate
+
+3. Set production values safely:
+
+- Create a local `terraform.tfvars` file (this is ignored by git).
+- You can start from `terraform/terraform.tfvars.example`.
+- Example values to set:
+  - `aws_region`
+  - `key_name`
+	- `admin_cidr` (set to your IP range, for example `x.x.x.x/32`)
+
+4. Plan and apply:
+
+	terraform plan
+	terraform apply
+
+## No-Leak First Commit Checklist
+
+Before committing, confirm:
+- No `.env` files are tracked.
+- No Terraform state (`*.tfstate`) is tracked.
+- No private key/certificate files are tracked.
+- No secrets in code or commit message.
+
+Optional quick checks:
+
+git status
+git ls-files | findstr /R /I "\.env$ tfstate pem key p12 pfx"
+
+## Local First Commit (No Remote Push)
+
+Run from repository root:
+
+git init
+git add .
+git commit -m "chore: bootstrap production-safe cloud-news-blog"
+
+## Important Note
+
+Never commit real credentials, cloud access keys, or Terraform state files.

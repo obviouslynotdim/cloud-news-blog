@@ -1,0 +1,41 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node.js
+app/node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+app/.env
+app/.env.*
+!app/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Terraform local state and overrides
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
