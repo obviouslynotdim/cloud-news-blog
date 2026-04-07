@@ -1,4 +1,4 @@
-# Cloud News Blog Setup Guide
+# Global Blog News Setup Guide
 
 This guide connects the full stack for local development and single-server production.
 

@@ -14,8 +14,13 @@ const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 const S3_REGION = process.env.S3_REGION || process.env.AWS_REGION;
+const DEFAULT_PAGE_SIZE = Number(process.env.DEFAULT_PAGE_SIZE || 20);
+const MAX_PAGE_SIZE = Number(process.env.MAX_PAGE_SIZE || 50);
+const CACHE_TTL_MS = Number(process.env.CACHE_TTL_SECONDS || 20) * 1000;
 
 const s3Client = S3_BUCKET_NAME && S3_REGION ? new S3Client({ region: S3_REGION }) : null;
+const newsListCache = new Map();
+const newsBySlugCache = new Map();
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -63,10 +68,44 @@ function getFileExtensionFromMimeType(mimeType) {
   return map[mimeType] || 'bin';
 }
 
+function getCached(cache, key) {
+  const item = cache.get(key);
+  if (!item) {
+    return null;
+  }
+
+  if (Date.now() - item.cachedAt > CACHE_TTL_MS) {
+    cache.delete(key);
+    return null;
+  }
+
+  return item.value;
+}
+
+function setCached(cache, key, value) {
+  cache.set(key, { cachedAt: Date.now(), value });
+}
+
+function clearNewsCaches() {
+  newsListCache.clear();
+  newsBySlugCache.clear();
+}
+
 app.get('/api/news', async (req, res, next) => {
   try {
     const q = (req.query.q || '').trim().toLowerCase();
     const category = (req.query.category || '').trim().toLowerCase();
+    const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+    const requestedLimit = Number.parseInt(req.query.limit, 10) || DEFAULT_PAGE_SIZE;
+    const limit = Math.min(Math.max(requestedLimit, 1), MAX_PAGE_SIZE);
+    const cacheKey = `${q}|${category}|${page}|${limit}`;
+
+    const cachedPayload = getCached(newsListCache, cacheKey);
+    if (cachedPayload) {
+      res.status(200).json(cachedPayload);
+      return;
+    }
+
     const posts = await readPosts();
 
     const filtered = posts.filter((post) => {
@@ -79,7 +118,23 @@ app.get('/api/news', async (req, res, next) => {
       return matchesQuery && matchesCategory;
     });
 
-    res.status(200).json({ count: filtered.length, posts: filtered });
+    const total = filtered.length;
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const normalizedPage = Math.min(page, totalPages);
+    const offset = (normalizedPage - 1) * limit;
+    const paginatedPosts = filtered.slice(offset, offset + limit);
+
+    const payload = {
+      count: paginatedPosts.length,
+      total,
+      page: normalizedPage,
+      limit,
+      totalPages,
+      posts: paginatedPosts
+    };
+
+    setCached(newsListCache, cacheKey, payload);
+    res.status(200).json(payload);
   } catch (error) {
     next(error);
   }
@@ -87,14 +142,22 @@ app.get('/api/news', async (req, res, next) => {
 
 app.get('/api/news/:slug', async (req, res, next) => {
   try {
+    const slug = req.params.slug;
+    const cachedPost = getCached(newsBySlugCache, slug);
+    if (cachedPost) {
+      res.status(200).json({ post: cachedPost });
+      return;
+    }
+
     const posts = await readPosts();
-    const post = posts.find((item) => item.slug === req.params.slug);
+    const post = posts.find((item) => item.slug === slug);
 
     if (!post) {
       res.status(404).json({ error: 'Post not found' });
       return;
     }
 
+    setCached(newsBySlugCache, slug, post);
     res.status(200).json({ post });
   } catch (error) {
     next(error);
@@ -128,6 +191,7 @@ app.post('/api/news', async (req, res, next) => {
     };
 
     const savedPost = await createPost(newPost);
+    clearNewsCaches();
     res.status(201).json({ post: savedPost });
   } catch (error) {
     next(error);
@@ -197,7 +261,7 @@ app.get('/api/uploads/image/:key', async (req, res, next) => {
 });
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', service: 'cloud-news-blog-backend' });
+  res.status(200).json({ status: 'ok', service: 'global-blog-news-backend' });
 });
 
 if (fsSync.existsSync(FRONTEND_DIST)) {

@@ -88,11 +88,6 @@ async function initDatabase() {
   await sequelize.authenticate();
   await sequelize.sync();
 
-  const count = await Post.count();
-  if (count > 0) {
-    return;
-  }
-
   const raw = await fs.readFile(DATA_FILE, 'utf8');
   const posts = JSON.parse(raw);
   await Post.bulkCreate(posts.map(normalizePost), { ignoreDuplicates: true });

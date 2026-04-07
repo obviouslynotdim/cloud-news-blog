@@ -1,4 +1,4 @@
-# Cloud News Blog
+# Global Blog News
 
 Production-safe starter for a cloud computing project using:
 - React + Tailwind CSS frontend
