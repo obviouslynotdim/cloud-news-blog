@@ -1,25 +1,34 @@
 require('dotenv').config();
 
-const fs = require('fs/promises');
 const fsSync = require('fs');
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
+const multer = require('multer');
+const { GetObjectCommand, PutObjectCommand, S3Client } = require('@aws-sdk/client-s3');
+const { createPost, initDatabase, readPosts } = require('./database');
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
-const DATA_FILE = path.join(__dirname, 'data', 'posts.json');
 const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
-const DATABASE_URL = process.env.DATABASE_URL;
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
+const S3_REGION = process.env.S3_REGION || process.env.AWS_REGION;
 
-const pool = DATABASE_URL
-  ? new Pool({
-      connectionString: DATABASE_URL,
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : undefined
-    })
-  : null;
+const s3Client = S3_BUCKET_NAME && S3_REGION ? new S3Client({ region: S3_REGION }) : null;
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, callback) => {
+    if (!file.mimetype.startsWith('image/')) {
+      callback(new Error('Only image files are allowed.'));
+      return;
+    }
+
+    callback(null, true);
+  }
+});
 
 app.use(express.json());
 
@@ -42,81 +51,16 @@ function slugify(text) {
     .replace(/-+/g, '-');
 }
 
-async function readPosts() {
-  if (pool) {
-    const result = await pool.query(
-      `SELECT id, slug, title, summary, content, category, author, image_url AS "imageUrl", published_at AS "publishedAt"
-       FROM posts
-       ORDER BY published_at DESC`
-    );
-    return result.rows;
-  }
+function getFileExtensionFromMimeType(mimeType) {
+  const map = {
+    'image/jpeg': 'jpg',
+    'image/jpg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif'
+  };
 
-  const raw = await fs.readFile(DATA_FILE, 'utf8');
-  const posts = JSON.parse(raw);
-  return posts.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
-}
-
-async function writePosts(posts) {
-  if (pool) {
-    return;
-  }
-
-  await fs.writeFile(DATA_FILE, JSON.stringify(posts, null, 2), 'utf8');
-}
-
-async function createPost(post) {
-  if (pool) {
-    const result = await pool.query(
-      `INSERT INTO posts (id, slug, title, summary, content, category, author, image_url, published_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING id, slug, title, summary, content, category, author, image_url AS "imageUrl", published_at AS "publishedAt"`,
-      [post.id, post.slug, post.title, post.summary, post.content, post.category, post.author, post.imageUrl, post.publishedAt]
-    );
-
-    return result.rows[0];
-  }
-
-  const posts = await readPosts();
-  posts.unshift(post);
-  await writePosts(posts);
-  return post;
-}
-
-async function initDatabase() {
-  if (!pool) {
-    return;
-  }
-
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS posts (
-      id TEXT PRIMARY KEY,
-      slug TEXT NOT NULL UNIQUE,
-      title TEXT NOT NULL,
-      summary TEXT NOT NULL,
-      content TEXT NOT NULL,
-      category TEXT NOT NULL,
-      author TEXT NOT NULL,
-      image_url TEXT NOT NULL,
-      published_at TIMESTAMPTZ NOT NULL
-    )
-  `);
-
-  const countResult = await pool.query('SELECT COUNT(*)::int AS total FROM posts');
-  if (countResult.rows[0].total > 0) {
-    return;
-  }
-
-  const raw = await fs.readFile(DATA_FILE, 'utf8');
-  const posts = JSON.parse(raw);
-  for (const post of posts) {
-    await pool.query(
-      `INSERT INTO posts (id, slug, title, summary, content, category, author, image_url, published_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       ON CONFLICT (slug) DO NOTHING`,
-      [post.id, post.slug, post.title, post.summary, post.content, post.category, post.author, post.imageUrl, post.publishedAt]
-    );
-  }
+  return map[mimeType] || 'bin';
 }
 
 app.get('/api/news', async (req, res, next) => {
@@ -190,6 +134,68 @@ app.post('/api/news', async (req, res, next) => {
   }
 });
 
+app.post('/api/uploads/image', upload.single('image'), async (req, res, next) => {
+  try {
+    if (!s3Client) {
+      res.status(500).json({ error: 'S3 upload is not configured. Set S3_BUCKET_NAME and S3_REGION.' });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ error: 'Image file is required.' });
+      return;
+    }
+
+    const ext = getFileExtensionFromMimeType(req.file.mimetype);
+    const baseName = slugify(path.parse(req.file.originalname).name || 'news-image');
+    const key = `news-images/${Date.now()}-${baseName}.${ext}`;
+
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: S3_BUCKET_NAME,
+        Key: key,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype
+      })
+    );
+
+    const imageUrl = `/api/uploads/image/${encodeURIComponent(key)}`;
+    res.status(201).json({ imageUrl, key });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/api/uploads/image/:key', async (req, res, next) => {
+  try {
+    if (!s3Client) {
+      res.status(500).json({ error: 'S3 image proxy is not configured.' });
+      return;
+    }
+
+    const key = req.params.key;
+    const result = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: S3_BUCKET_NAME,
+        Key: key
+      })
+    );
+
+    if (result.ContentType) {
+      res.setHeader('Content-Type', result.ContentType);
+    }
+
+    if (!result.Body) {
+      res.status(404).json({ error: 'Image not found.' });
+      return;
+    }
+
+    result.Body.pipe(res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'cloud-news-blog-backend' });
 });
@@ -217,7 +223,7 @@ async function startServer() {
 
   app.listen(port, '0.0.0.0', () => {
     console.log(`Backend running on port ${port}`);
-    if (pool) {
+    if (process.env.DATABASE_URL) {
       console.log('Using PostgreSQL storage');
     } else {
       console.log('Using local JSON storage');

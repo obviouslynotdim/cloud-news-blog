@@ -111,19 +111,42 @@ function PublishForm({ onCreated }) {
     summary: '',
     category: 'Cloud',
     author: '',
-    imageUrl: '',
     content: ''
   });
   const [status, setStatus] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('');
 
   async function onSubmit(event) {
     event.preventDefault();
-    setStatus('Publishing...');
+
+    if (!imageFile) {
+      setStatus('Please choose a cover image first.');
+      return;
+    }
+
+    setStatus('Uploading image...');
+
+    const uploadBody = new FormData();
+    uploadBody.append('image', imageFile);
+
+    const uploadResponse = await fetch(buildApiUrl('/api/uploads/image'), {
+      method: 'POST',
+      body: uploadBody
+    });
+
+    const uploadResult = await uploadResponse.json();
+    if (!uploadResponse.ok) {
+      setStatus(uploadResult.error || 'Image upload failed');
+      return;
+    }
+
+    setStatus('Publishing story...');
 
     const response = await fetch(buildApiUrl('/api/news'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify({ ...form, imageUrl: uploadResult.imageUrl })
     });
 
     const result = await response.json();
@@ -133,8 +156,22 @@ function PublishForm({ onCreated }) {
     }
 
     setStatus('Published successfully');
-    setForm({ title: '', summary: '', category: 'Cloud', author: '', imageUrl: '', content: '' });
+    setForm({ title: '', summary: '', category: 'Cloud', author: '', content: '' });
+    setImageFile(null);
+    setImagePreviewUrl('');
     onCreated(result.post.slug);
+  }
+
+  function onImageChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      setImageFile(null);
+      setImagePreviewUrl('');
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
   }
 
   return (
@@ -183,15 +220,18 @@ function PublishForm({ onCreated }) {
           </label>
         </div>
         <label className="grid gap-1 text-sm font-bold">
-          Cover image URL
+          Cover image file
           <input
             required
-            type="url"
+            type="file"
+            accept="image/*"
             className="rounded-lg border border-slate-200 px-3 py-2"
-            value={form.imageUrl}
-            onChange={(event) => setForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
+            onChange={onImageChange}
           />
         </label>
+        {imagePreviewUrl ? (
+          <img src={imagePreviewUrl} alt="Image preview" className="h-48 w-full rounded-lg border border-slate-200 object-cover" />
+        ) : null}
         <label className="grid gap-1 text-sm font-bold">
           Content
           <textarea

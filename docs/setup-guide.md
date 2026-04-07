@@ -99,6 +99,7 @@ Terraform provisions the production cloud resources for this app:
 - EC2: runs Node.js backend
 - RDS PostgreSQL: stores post data
 - S3: stores images/files and their URLs are saved in DB records
+- Sequelize model: `backend/models/Post.js`
 
 1. Move to Terraform directory:
 
@@ -148,6 +149,8 @@ Use:
 PORT=3000
 DATABASE_URL=postgresql://<rds_username>:<db_password>@<rds_endpoint>:<rds_port>/<rds_db_name>
 DB_SSL=true
+S3_BUCKET_NAME=<s3_bucket_name>
+S3_REGION=ap-southeast-1
 ```
 
 7. Start backend and verify logs show PostgreSQL mode:

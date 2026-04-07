@@ -78,8 +78,10 @@ This repository is prepared to avoid secret leaks on first commit:
 - News listing with search and category filters
 - Story detail view
 - Publish form to create posts
+- Publish form supports direct image file upload to S3
 - API endpoints for read/create posts
 - JSON-backed storage at `backend/data/posts.json`
+- Sequelize model at `backend/models/Post.js`
 
 ## Configuration
 
