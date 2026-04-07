@@ -10,6 +10,10 @@ variable "instance_type" {
   type = string
 }
 
+variable "ami_id" {
+  type = string
+}
+
 variable "subnet_id" {
   type = string
 }
@@ -41,7 +45,7 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_instance" "app" {
-  ami                         = data.aws_ami.amazon_linux.id
+  ami                         = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [var.security_group_id]

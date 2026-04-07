@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply text-slate-900;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(45, 212, 191, 0.16), transparent 38%),
+      radial-gradient(circle at 100% 8%, rgba(251, 191, 36, 0.2), transparent 34%),
+      #f8fafc;
+  }
+}

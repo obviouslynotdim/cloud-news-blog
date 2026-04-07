@@ -28,10 +28,28 @@ variable "public_subnet_cidr" {
   default     = "10.0.1.0/24"
 }
 
+variable "private_subnet_cidr_a" {
+  description = "Private subnet A CIDR block for RDS"
+  type        = string
+  default     = "10.0.2.0/24"
+}
+
+variable "private_subnet_cidr_b" {
+  description = "Private subnet B CIDR block for RDS"
+  type        = string
+  default     = "10.0.3.0/24"
+}
+
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
   default     = "t3.micro"
+}
+
+variable "ami_id" {
+  description = "Optional explicit AMI ID to pin the EC2 instance image and avoid replacement on new AMI releases"
+  type        = string
+  default     = ""
 }
 
 variable "key_name" {
@@ -52,7 +70,7 @@ variable "admin_cidr" {
 }
 
 variable "allowed_http_cidr" {
-  description = "CIDR allowed to access HTTP and app ports"
+  description = "CIDR allowed to access the app port"
   type        = string
   default     = "0.0.0.0/0"
 
@@ -70,6 +88,54 @@ variable "app_port" {
 
 variable "bucket_force_destroy" {
   description = "Allow Terraform to destroy bucket with objects"
+  type        = bool
+  default     = false
+}
+
+variable "db_name" {
+  description = "RDS database name"
+  type        = string
+  default     = "cloudnews"
+}
+
+variable "db_username" {
+  description = "RDS master username"
+  type        = string
+  default     = "cloudnews_admin"
+}
+
+variable "db_password" {
+  description = "RDS master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_engine_version" {
+  description = "PostgreSQL engine version"
+  type        = string
+  default     = "16.3"
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "db_allocated_storage" {
+  description = "RDS allocated storage in GB"
+  type        = number
+  default     = 20
+}
+
+variable "db_port" {
+  description = "RDS PostgreSQL port"
+  type        = number
+  default     = 5432
+}
+
+variable "db_publicly_accessible" {
+  description = "Whether the RDS instance should have a public endpoint"
   type        = bool
   default     = false
 }

@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars and adjust values for your environment.
+# This file is safe to commit.
+
+aws_region        = "ap-southeast-1"
+instance_type     = "t3.micro"
+ami_id            = "" # Optional: set to a specific AMI ID to pin image version
+private_subnet_cidr_a = "10.0.2.0/24"
+private_subnet_cidr_b = "10.0.3.0/24"
+key_name          = "your-ec2-keypair-name"
+admin_cidr        = "203.0.113.10/32"
+allowed_http_cidr = "0.0.0.0/0"
+
+db_name           = "cloudnews"
+db_username       = "cloudnews_admin"
+db_password       = "ChangeThisStrongPassword123!"
+db_engine_version = "16.3"
+db_instance_class = "db.t4g.micro"
+db_allocated_storage = 20
+
+tags = {
+  Project     = "cloud-news-blog"
+  Environment = "prod"
+  Owner       = "your-name"
+}

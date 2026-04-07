@@ -1,0 +1,35 @@
+[
+  {
+    "id": "post-1",
+    "slug": "aws-launches-carbon-aware-cloud-zones",
+    "title": "AWS launches carbon-aware cloud zones for greener workloads",
+    "summary": "A new placement option helps teams reduce compute emissions during peak demand windows.",
+    "content": "Cloud providers are expanding sustainability controls for infrastructure teams. The new policy-based placement option lets teams prioritize regions and windows that have lower carbon intensity. This helps product teams keep performance while reducing climate impact for non-latency-sensitive jobs.",
+    "category": "Cloud",
+    "author": "Editorial Desk",
+    "imageUrl": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+    "publishedAt": "2026-04-04T08:00:00.000Z"
+  },
+  {
+    "id": "post-2",
+    "slug": "kubernetes-security-checklist-for-startups",
+    "title": "Kubernetes security checklist for startups shipping fast",
+    "summary": "Five practical controls that close common security gaps in small engineering teams.",
+    "content": "Startups often move quickly and defer hardening until later. This guide covers baseline controls: strict RBAC, secrets management, image scanning, network policies, and runtime alerts. These controls give strong protection without slowing down developer velocity.",
+    "category": "Security",
+    "author": "Ops Team",
+    "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
+    "publishedAt": "2026-04-03T10:30:00.000Z"
+  },
+  {
+    "id": "post-3",
+    "slug": "serverless-cost-traps-you-should-measure-weekly",
+    "title": "Serverless cost traps you should measure weekly",
+    "summary": "A monitoring rhythm to avoid runaway bills from retries, logs, and idle integrations.",
+    "content": "Serverless can cut operating overhead, but costs can spike from retry storms, noisy logs, and unbounded event sources. Teams should build a weekly review around top functions by spend, error rates, and cold-start behavior. Visibility is the fastest path to savings.",
+    "category": "FinOps",
+    "author": "Cloud Finance Lab",
+    "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
+    "publishedAt": "2026-04-01T14:00:00.000Z"
+  }
+]
