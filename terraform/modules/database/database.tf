@@ -73,11 +73,11 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [var.db_security_group_id]
 
-  publicly_accessible   = var.db_publicly_accessible
-  storage_encrypted     = true
-  backup_retention_period = 0
-  skip_final_snapshot   = true
-  deletion_protection   = false
+  publicly_accessible     = var.db_publicly_accessible
+  storage_encrypted       = true
+  backup_retention_period = 7
+  skip_final_snapshot     = true
+  deletion_protection     = false
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-postgres"
@@ -98,4 +98,8 @@ output "db_name" {
 
 output "db_username" {
   value = aws_db_instance.main.username
+}
+
+output "db_instance_id" {
+  value = aws_db_instance.main.identifier
 }

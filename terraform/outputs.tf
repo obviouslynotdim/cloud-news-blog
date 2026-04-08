@@ -1,11 +1,6 @@
-output "instance_public_ip" {
-  description = "Public IP of the application instance"
-  value       = module.compute.instance_public_ip
-}
-
-output "instance_public_dns" {
-  description = "Public DNS of the application instance"
-  value       = module.compute.instance_public_dns
+output "alb_dns_name" {
+  description = "Public DNS of the Application Load Balancer (access the app here)"
+  value       = module.loadbalancer.alb_dns_name
 }
 
 output "s3_bucket_name" {
@@ -31,4 +26,19 @@ output "rds_db_name" {
 output "rds_username" {
   description = "RDS username"
   value       = module.database.db_username
+}
+
+output "asg_name" {
+  description = "Auto Scaling Group name"
+  value       = module.compute.asg_name
+}
+
+output "cloudwatch_dashboard" {
+  description = "CloudWatch dashboard name"
+  value       = module.monitoring.dashboard_name
+}
+
+output "sns_topic_arn" {
+  description = "SNS topic ARN for alarm notifications"
+  value       = module.monitoring.sns_topic_arn
 }
