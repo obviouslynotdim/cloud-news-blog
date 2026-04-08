@@ -22,10 +22,16 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "public_subnet_cidr" {
-  description = "Public subnet CIDR block"
+variable "public_subnet_cidr_a" {
+  description = "Public subnet A CIDR block"
   type        = string
   default     = "10.0.1.0/24"
+}
+
+variable "public_subnet_cidr_b" {
+  description = "Public subnet B CIDR block"
+  type        = string
+  default     = "10.0.4.0/24"
 }
 
 variable "private_subnet_cidr_a" {
@@ -144,4 +150,22 @@ variable "tags" {
   description = "Additional tags for all resources"
   type        = map(string)
   default     = {}
+}
+
+variable "asg_min_size" {
+  description = "Minimum number of instances in the ASG"
+  type        = number
+  default     = 1
+}
+
+variable "asg_max_size" {
+  description = "Maximum number of instances in the ASG"
+  type        = number
+  default     = 3
+}
+
+variable "asg_desired_capacity" {
+  description = "Desired number of instances in the ASG"
+  type        = number
+  default     = 2
 }

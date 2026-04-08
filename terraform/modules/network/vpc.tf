@@ -10,7 +10,11 @@ variable "vpc_cidr" {
   type = string
 }
 
-variable "public_subnet_cidr" {
+variable "public_subnet_cidr_a" {
+  type = string
+}
+
+variable "public_subnet_cidr_b" {
   type = string
 }
 
@@ -40,14 +44,25 @@ resource "aws_vpc" "main" {
   })
 }
 
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr
+  cidr_block              = var.public_subnet_cidr_a
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[0]
 
   tags = merge(var.tags, {
-    Name = "${var.project_name}-${var.environment}-public-subnet"
+    Name = "${var.project_name}-${var.environment}-public-subnet-a"
+  })
+}
+
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr_b
+  map_public_ip_on_launch = true
+  availability_zone       = data.aws_availability_zones.available.names[1]
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-public-subnet-b"
   })
 }
 
@@ -96,8 +111,13 @@ resource "aws_route_table" "public" {
   })
 }
 
-resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
+resource "aws_route_table_association" "public_a" {
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_b" {
+  subnet_id      = aws_subnet.public_b.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -117,8 +137,8 @@ output "vpc_id" {
   value = aws_vpc.main.id
 }
 
-output "public_subnet_id" {
-  value = aws_subnet.public.id
+output "public_subnet_ids" {
+  value = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 }
 
 output "private_subnet_ids" {

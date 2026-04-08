@@ -30,6 +30,32 @@ variable "tags" {
   type = map(string)
 }
 
+resource "aws_security_group" "alb" {
+  name        = "${var.project_name}-${var.environment}-alb-sg"
+  description = "Security group for Application Load Balancer"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "Allow HTTP from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.allowed_http_cidr]
+  }
+
+  egress {
+    description = "Allow all outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-alb-sg"
+  })
+}
+
 resource "aws_security_group" "app" {
   name        = "${var.project_name}-${var.environment}-sg"
   description = "Security group for cloud-news-blog"
@@ -44,11 +70,11 @@ resource "aws_security_group" "app" {
   }
 
   ingress {
-    description = "Allow app port"
-    from_port   = var.app_port
-    to_port     = var.app_port
-    protocol    = "tcp"
-    cidr_blocks = [var.allowed_http_cidr]
+    description     = "Allow app port from ALB"
+    from_port       = var.app_port
+    to_port         = var.app_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
   }
 
   egress {
@@ -104,4 +130,8 @@ output "security_group_id" {
 
 output "db_security_group_id" {
   value = aws_security_group.db.id
+}
+
+output "alb_security_group_id" {
+  value = aws_security_group.alb.id
 }
