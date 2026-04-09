@@ -4,7 +4,7 @@ exec > /var/log/userdata.log 2>&1
 echo "=== userdata.sh started at $(date) ==="
 
 # ── system packages ─────────────────────────────────────────────
-dnf update -y
+dnf update -y || true
 dnf install -y git nodejs
 
 # ── install CloudWatch agent ────────────────────────────────────

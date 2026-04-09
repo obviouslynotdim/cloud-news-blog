@@ -85,7 +85,7 @@ module "compute" {
     db_port        = module.database.db_port
     db_name        = module.database.db_name
     db_username    = module.database.db_username
-    db_password    = var.db_password
+    db_password    = replace(var.db_password, "$", "\\$")
     app_port       = var.app_port
   })
   instance_profile_name = module.iam.instance_profile_name
