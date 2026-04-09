@@ -1,6 +1,10 @@
+import { useState } from 'react';
+import { AdminNewsManager } from '../components/admin/AdminNewsManager';
 import { PublishForm } from '../components/publish/PublishForm';
 
 export function PublishPage({ onCreated, authUser, onOpenAuth }) {
+  const [refreshKey, setRefreshKey] = useState(0);
+
   if (!authUser) {
     return (
       <section className="rounded-xl border border-zinc-300 bg-white p-6 shadow-sm">
@@ -22,5 +26,15 @@ export function PublishPage({ onCreated, authUser, onOpenAuth }) {
     );
   }
 
-  return <PublishForm onCreated={onCreated} />;
+  return (
+    <>
+      <PublishForm
+        onCreated={onCreated}
+        onPublished={() => {
+          setRefreshKey((prev) => prev + 1);
+        }}
+      />
+      <AdminNewsManager refreshKey={refreshKey} />
+    </>
+  );
 }

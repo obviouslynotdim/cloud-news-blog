@@ -80,6 +80,45 @@ async function createPost(post) {
   return post;
 }
 
+async function updatePostBySlug(slug, updates) {
+  if (Post) {
+    const post = await Post.findOne({ where: { slug } });
+    if (!post) {
+      return null;
+    }
+
+    await post.update(updates);
+    return normalizePost(post);
+  }
+
+  const posts = await readPostsFromJson();
+  const index = posts.findIndex((post) => post.slug === slug);
+  if (index === -1) {
+    return null;
+  }
+
+  const updatedPost = { ...posts[index], ...updates };
+  posts[index] = updatedPost;
+  await writePostsToJson(posts);
+  return updatedPost;
+}
+
+async function deletePostBySlug(slug) {
+  if (Post) {
+    const deletedCount = await Post.destroy({ where: { slug } });
+    return deletedCount > 0;
+  }
+
+  const posts = await readPostsFromJson();
+  const remaining = posts.filter((post) => post.slug !== slug);
+  if (remaining.length === posts.length) {
+    return false;
+  }
+
+  await writePostsToJson(remaining);
+  return true;
+}
+
 async function initDatabase() {
   if (!Post) {
     return;
@@ -95,7 +134,9 @@ async function initDatabase() {
 
 module.exports = {
   createPost,
+  deletePostBySlug,
   initDatabase,
   readPosts,
-  sequelize
+  sequelize,
+  updatePostBySlug
 };
