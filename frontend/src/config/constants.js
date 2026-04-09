@@ -4,5 +4,6 @@ export const CATEGORIES = ['World', 'Business', 'Technology', 'Health', 'Climate
 export const APP_TABS = ['home', 'news'];
 export const AUTH_STORAGE_KEY = 'cloud-news-auth';
 export const USERS_STORAGE_KEY = 'cloud-news-users';
+export const THEME_STORAGE_KEY = 'cloud-news-theme';
 export const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
 export const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';

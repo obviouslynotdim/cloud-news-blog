@@ -11,6 +11,12 @@
     --theme-red-soft: rgba(184, 0, 0, 0.05);
   }
 
+  :root.dark {
+    --theme-bg: #0e1218;
+    --theme-text: #e8ecf2;
+    --theme-red-soft: rgba(184, 0, 0, 0.15);
+  }
+
   body {
     @apply text-zinc-900;
     font-family: 'Source Sans 3', ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
@@ -18,6 +24,14 @@
     background:
       radial-gradient(circle at 100% -10%, rgba(184, 0, 0, 0.08), transparent 36%),
       linear-gradient(to bottom, transparent 0%, transparent 66%, var(--theme-red-soft) 100%),
+      var(--theme-bg);
+  }
+
+  :root.dark body {
+    background:
+      radial-gradient(circle at 100% -10%, rgba(255, 99, 71, 0.12), transparent 40%),
+      radial-gradient(circle at 12% 110%, rgba(50, 160, 255, 0.12), transparent 40%),
+      linear-gradient(to bottom, transparent 0%, transparent 70%, rgba(184, 0, 0, 0.15) 100%),
       var(--theme-bg);
   }
 
@@ -30,6 +44,65 @@
 }
 
 @layer utilities {
+  .dark .bg-white {
+    background-color: #151b23;
+  }
+
+  .dark .bg-zinc-50 {
+    background-color: #1a2230;
+  }
+
+  .dark .text-zinc-950,
+  .dark .text-zinc-900 {
+    color: #f5f8ff;
+  }
+
+  .dark .text-zinc-800,
+  .dark .text-zinc-700,
+  .dark .text-zinc-600,
+  .dark .text-zinc-500,
+  .dark .text-slate-900,
+  .dark .text-slate-700,
+  .dark .text-slate-600,
+  .dark .text-slate-500 {
+    color: #c1cad8;
+  }
+
+  .dark .border-zinc-300,
+  .dark .border-zinc-200,
+  .dark .border-slate-200 {
+    border-color: #2f3a49;
+  }
+
+  .dark .hover\:bg-zinc-100:hover,
+  .dark .hover\:bg-zinc-200:hover {
+    background-color: #243141;
+  }
+
+  .dark .shadow-sm {
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+  }
+
+  .dark input,
+  .dark textarea,
+  .dark select {
+    color: #e8ecf2;
+    background-color: #121a24;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #8ea0b8;
+  }
+
+  .dark .bg-teal-50 {
+    background-color: rgba(17, 94, 89, 0.28);
+  }
+
+  .dark .bg-slate-50 {
+    background-color: #151b23;
+  }
+
   @keyframes page-enter {
     from {
       opacity: 0;
