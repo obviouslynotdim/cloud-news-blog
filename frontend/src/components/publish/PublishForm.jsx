@@ -208,50 +208,70 @@ export function PublishForm({ onCreated }) {
             />
           </label>
         </div>
-        <div
-          className={`grid gap-2 rounded-2xl border-2 border-dashed p-5 transition ${
-            dragActive ? 'border-teal-600 bg-teal-50' : 'border-slate-200 bg-slate-50'
-          }`}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
-          onClick={() => fileInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-        >
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-bold text-slate-900">Cover image file</p>
-              <p className="text-sm text-slate-600">Drag and drop an image here, or click to choose a file.</p>
-            </div>
-            <button
-              type="button"
-              className="rounded-xl border border-teal-600 px-4 py-2 text-sm font-bold text-teal-700"
-              onClick={(event) => {
-                event.stopPropagation();
-                fileInputRef.current?.click();
-              }}
-            >
-              Choose file
-            </button>
+        <div className="grid gap-1 text-sm font-bold">
+          Cover image
+          <div
+            className={`relative overflow-hidden rounded-2xl border-2 border-dashed transition ${
+              dragActive ? 'border-teal-500 bg-teal-50' : imagePreviewUrl ? 'border-slate-300 bg-slate-100' : 'border-slate-300 bg-slate-50'
+            }`}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+          >
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onImageChange} />
+            {imagePreviewUrl ? (
+              <div className="relative">
+                <img src={imagePreviewUrl} alt="Cover preview" className="h-56 w-full object-cover" />
+                <div className="absolute inset-0 flex items-end gap-2 bg-gradient-to-t from-black/50 to-transparent p-4">
+                  <button
+                    type="button"
+                    className="rounded-lg bg-white/90 px-3 py-1.5 text-xs font-bold text-slate-800 backdrop-blur-sm hover:bg-white"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      fileInputRef.current?.click();
+                    }}
+                  >
+                    Change image
+                  </button>
+                  <button
+                    type="button"
+                    className="rounded-lg bg-white/90 px-3 py-1.5 text-xs font-bold text-red-600 backdrop-blur-sm hover:bg-white"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      resetImageSelection();
+                    }}
+                  >
+                    Remove
+                  </button>
+                  <span className="ml-auto max-w-[50%] truncate text-xs text-white/80">{imageFile?.name}</span>
+                </div>
+                {uploadProgress > 0 && uploadProgress < 100 ? (
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+                    <div className="h-full bg-teal-400 transition-all" style={{ width: `${uploadProgress}%` }} />
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="flex w-full cursor-pointer flex-col items-center gap-3 p-10 text-center"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-semibold text-slate-700">
+                    {dragActive ? 'Drop image here' : 'Drag & drop or click to upload'}
+                  </p>
+                  <p className="mt-0.5 text-xs font-normal text-slate-500">PNG, JPG, WEBP up to 10 MB</p>
+                </div>
+              </button>
+            )}
           </div>
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onImageChange} />
-          {imageFile ? <p className="text-sm text-slate-700">Selected: {imageFile.name}</p> : null}
-          {uploadProgress > 0 ? (
-            <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full rounded-full bg-teal-600 transition-all" style={{ width: `${uploadProgress}%` }} />
-            </div>
-          ) : null}
         </div>
-        {imagePreviewUrl ? (
-          <img src={imagePreviewUrl} alt="Image preview" className="h-48 w-full rounded-lg border border-slate-200 object-cover" />
-        ) : null}
         <label className="grid gap-1 text-sm font-bold">
           Content
           <textarea
