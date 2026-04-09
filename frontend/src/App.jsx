@@ -31,7 +31,8 @@ export default function App() {
   const [authMode, setAuthMode] = useState('login');
   const [authStatus, setAuthStatus] = useState('');
   const [authUser, setAuthUser] = useState(() => readStoredAuth());
-  const { filters, setFilters, posts, loading, setPage, pagination, ensurePostLoaded } = useNewsFeed();
+  const [newsRefreshSignal, setNewsRefreshSignal] = useState(0);
+  const { filters, setFilters, posts, loading, setPage, pagination, ensurePostLoaded } = useNewsFeed(newsRefreshSignal);
 
   const selectedPost = useMemo(() => posts.find((post) => post.slug === activeSlug), [posts, activeSlug]);
 
@@ -153,7 +154,14 @@ export default function App() {
         />
       ) : null}
 
-      {tab === 'publish' ? <PublishPage onCreated={openStory} authUser={authUser} onOpenAuth={openAuth} /> : null}
+      {tab === 'publish' ? (
+        <PublishPage
+          onCreated={openStory}
+          authUser={authUser}
+          onOpenAuth={openAuth}
+          onContentChanged={() => setNewsRefreshSignal((prev) => prev + 1)}
+        />
+      ) : null}
       {tab === 'auth' ? (
         <AuthPanel mode={authMode} setMode={setAuthMode} onLogin={login} onRegister={register} status={authStatus} />
       ) : null}

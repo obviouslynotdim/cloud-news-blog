@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PAGE_SIZE } from '../config/constants';
 import { buildApiUrl } from '../utils/api';
 
-export function useNewsFeed() {
+export function useNewsFeed(refreshSignal = 0) {
   const [filters, setFilters] = useState({ q: '', category: '' });
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ export function useNewsFeed() {
     }
 
     setLoading(false);
-  }, [filters.q, filters.category, page]);
+  }, [filters.q, filters.category, page, refreshSignal]);
 
   useEffect(() => {
     setPage(1);

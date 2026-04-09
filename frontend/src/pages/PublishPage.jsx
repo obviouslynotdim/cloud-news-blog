@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AdminNewsManager } from '../components/admin/AdminNewsManager';
 import { PublishForm } from '../components/publish/PublishForm';
 
-export function PublishPage({ onCreated, authUser, onOpenAuth }) {
+export function PublishPage({ onCreated, authUser, onOpenAuth, onContentChanged }) {
   const [refreshKey, setRefreshKey] = useState(0);
 
   if (!authUser) {
@@ -32,9 +32,15 @@ export function PublishPage({ onCreated, authUser, onOpenAuth }) {
         onCreated={onCreated}
         onPublished={() => {
           setRefreshKey((prev) => prev + 1);
+          onContentChanged?.();
         }}
       />
-      <AdminNewsManager refreshKey={refreshKey} />
+      <AdminNewsManager
+        refreshKey={refreshKey}
+        onMutated={() => {
+          onContentChanged?.();
+        }}
+      />
     </>
   );
 }
