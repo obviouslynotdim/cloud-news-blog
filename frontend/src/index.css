@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,19 +6,18 @@
 
 @layer base {
   :root {
-    --theme-bg: #f8fafc;
-    --theme-text: #0f172a;
-    --theme-teal-soft: rgba(45, 212, 191, 0.16);
-    --theme-amber-soft: rgba(251, 191, 36, 0.2);
+    --theme-bg: #f7f7f5;
+    --theme-text: #171717;
+    --theme-red-soft: rgba(184, 0, 0, 0.05);
   }
 
   body {
-    @apply text-slate-900;
-    font-family: 'DM Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+    @apply text-zinc-900;
+    font-family: 'Source Sans 3', ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
     color: var(--theme-text);
     background:
-      radial-gradient(circle at 0% 0%, var(--theme-teal-soft), transparent 38%),
-      radial-gradient(circle at 100% 8%, var(--theme-amber-soft), transparent 34%),
+      radial-gradient(circle at 100% -10%, rgba(184, 0, 0, 0.08), transparent 36%),
+      linear-gradient(to bottom, transparent 0%, transparent 66%, var(--theme-red-soft) 100%),
       var(--theme-bg);
   }
 
@@ -26,7 +25,7 @@
   h2,
   h3,
   h4 {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'Merriweather', Georgia, serif;
   }
 }
 
