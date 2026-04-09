@@ -6,4 +6,4 @@ export const AUTH_STORAGE_KEY = 'cloud-news-auth';
 export const USERS_STORAGE_KEY = 'cloud-news-users';
 export const THEME_STORAGE_KEY = 'cloud-news-theme';
 export const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
-export const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';
+export const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'CloudNews_Admin_2026!';
