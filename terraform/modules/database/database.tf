@@ -75,7 +75,7 @@ resource "aws_db_instance" "main" {
 
   publicly_accessible     = var.db_publicly_accessible
   storage_encrypted       = true
-  backup_retention_period = 7
+  backup_retention_period = 0
   skip_final_snapshot     = true
   deletion_protection     = false
 

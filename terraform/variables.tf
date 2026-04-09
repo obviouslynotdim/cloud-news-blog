@@ -16,6 +16,11 @@ variable "aws_region" {
   default     = "ap-southeast-1"
 }
 
+variable "repo_url" {
+  description = "GitHub repository HTTPS URL for auto-deployment on EC2 launch"
+  type        = string
+}
+
 variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
