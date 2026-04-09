@@ -3,6 +3,11 @@ output "alb_dns_name" {
   value       = module.loadbalancer.alb_dns_name
 }
 
+output "cloudfront_url" {
+  description = "HTTPS CloudFront URL — use this to access the app securely"
+  value       = "https://${module.cdn.cloudfront_domain_name}"
+}
+
 output "s3_bucket_name" {
   description = "S3 bucket name for image storage"
   value       = module.storage.bucket_name

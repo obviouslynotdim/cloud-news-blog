@@ -115,6 +115,17 @@ module "database" {
   tags                   = var.tags
 }
 
+# ── CDN (CloudFront + HTTPS) ────────────────────────────────────
+module "cdn" {
+  source = "./modules/cdn"
+
+  project_name          = var.project_name
+  environment           = var.environment
+  alb_dns_name          = module.loadbalancer.alb_dns_name
+  alb_security_group_id = module.security.alb_security_group_id
+  tags                  = var.tags
+}
+
 # ── monitoring & logging ────────────────────────────────────────
 module "monitoring" {
   source = "./modules/monitoring"
