@@ -12,8 +12,9 @@ export function AppHeader({ tab, setTab, authUser, onOpenAuth, onLogout }) {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button className="text-2xl font-black uppercase tracking-tight text-zinc-950" onClick={() => setTab('home')}>
-          {theme.brandName}
+        <button className="flex items-center gap-3" onClick={() => setTab('home')}>
+          <img src="/assets/logo.png" alt="Daily Global News logo" className="h-10 w-10 rounded-md border border-zinc-300 object-cover" />
+          <span className="text-2xl font-black uppercase tracking-tight text-zinc-950">{theme.brandName}</span>
         </button>
 
         <div className="flex flex-wrap items-center gap-2">

@@ -7,7 +7,11 @@ export function StoryDetail({ post, onBack }) {
 
   return (
     <article className="mx-auto max-w-3xl rounded-xl border border-zinc-300 bg-white p-6 shadow-sm">
-      <button className="text-sm font-bold text-[#b80000]" onClick={onBack}>
+      <button className="inline-flex items-center gap-1 text-sm font-bold text-[#b80000] hover:underline" onClick={onBack}>
+        <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+          <path d="M11.5 4.5L6 10l5.5 5.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M6.5 10h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
         Back to news
       </button>
       <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">
