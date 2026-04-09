@@ -17,7 +17,7 @@ function toEditablePost(post) {
   };
 }
 
-export function AdminNewsManager({ refreshKey = 0 }) {
+export function AdminNewsManager({ refreshKey = 0, onMutated }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState(null);
@@ -177,6 +177,7 @@ export function AdminNewsManager({ refreshKey = 0 }) {
     clearCache();
     await loadPosts();
     showNotice('success', 'Story updated successfully.');
+    onMutated?.();
     cancelEdit();
   }
 
@@ -202,6 +203,7 @@ export function AdminNewsManager({ refreshKey = 0 }) {
     setNotice(null);
     setConfirmDeleteSlug('');
     setDeleteDoneDialog(true);
+    onMutated?.();
 
     if (editingSlug === slug) {
       cancelEdit();

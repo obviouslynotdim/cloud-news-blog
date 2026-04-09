@@ -1,6 +1,6 @@
 import { theme } from '../../theme/theme';
 
-export function HeroSection({ setTab, authUser }) {
+export function HeroSection({ onBrowseNews, onOpenAuth, authUser }) {
   return (
     <section className="overflow-hidden rounded-xl border border-zinc-300 bg-white p-8 shadow-sm md:p-10">
       <p className="inline-block border-b-4 border-[#b80000] pb-1 text-xs font-bold uppercase tracking-[0.3em] text-zinc-700">{theme.tagline}</p>
@@ -9,11 +9,11 @@ export function HeroSection({ setTab, authUser }) {
         Follow global updates with concise summaries and full story context in one clean newsroom experience.
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
-        <button className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-extrabold text-white" onClick={() => setTab('news')}>
+        <button className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-extrabold text-white" onClick={onBrowseNews}>
           Browse News
         </button>
         {!authUser ? (
-          <button className="rounded-md border border-zinc-300 bg-zinc-50 px-5 py-3 text-sm font-extrabold text-zinc-900" onClick={() => setTab('auth')}>
+          <button className="rounded-md border border-zinc-300 bg-zinc-50 px-5 py-3 text-sm font-extrabold text-zinc-900" onClick={() => onOpenAuth('login')}>
             Login or Register
           </button>
         ) : null}
