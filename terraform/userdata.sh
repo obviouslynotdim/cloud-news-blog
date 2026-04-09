@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-exec > >(tee /var/log/userdata.log | logger -t userdata) 2>&1
+exec > /var/log/userdata.log 2>&1
 echo "=== userdata.sh started at $(date) ==="
 
 # ── system packages ─────────────────────────────────────────────
