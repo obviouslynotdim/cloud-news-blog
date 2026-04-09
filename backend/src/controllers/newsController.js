@@ -1,4 +1,4 @@
-const { getNewsBySlug, listNews, publishNews } = require('../services/newsService');
+const { deleteNews, getNewsBySlug, listNews, publishNews, updateNews } = require('../services/newsService');
 
 async function getNewsList(req, res, next) {
   try {
@@ -32,8 +32,38 @@ async function createNews(req, res, next) {
   }
 }
 
+async function updateNewsHandler(req, res, next) {
+  try {
+    const post = await updateNews(req.params.slug, req.body);
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    res.status(200).json({ post });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteNewsHandler(req, res, next) {
+  try {
+    const deleted = await deleteNews(req.params.slug);
+    if (!deleted) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
+  deleteNewsHandler,
   getNewsList,
   getNewsBySlugHandler,
-  createNews
+  createNews,
+  updateNewsHandler
 };

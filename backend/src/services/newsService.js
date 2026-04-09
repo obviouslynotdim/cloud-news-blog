@@ -1,4 +1,4 @@
-const { createPost, readPosts } = require('../../database');
+const { createPost, deletePostBySlug, readPosts, updatePostBySlug } = require('../../database');
 const env = require('../config/env');
 const { TimedCache } = require('../utils/cache');
 const { slugify } = require('../utils/slug');
@@ -106,8 +106,53 @@ async function publishNews(data) {
   return savedPost;
 }
 
+async function updateNews(slug, data) {
+  const post = await getNewsBySlug(slug);
+  if (!post) {
+    return null;
+  }
+
+  const updates = {};
+  const fields = ['title', 'summary', 'category', 'author', 'content', 'imageUrl'];
+
+  for (const field of fields) {
+    if (typeof data[field] === 'undefined') {
+      continue;
+    }
+
+    const value = String(data[field]).trim();
+    if (!value) {
+      const error = new Error(`${field} cannot be empty.`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    updates[field] = value;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return post;
+  }
+
+  const updatedPost = await updatePostBySlug(slug, updates);
+  clearNewsCaches();
+  return updatedPost;
+}
+
+async function deleteNews(slug) {
+  const deleted = await deletePostBySlug(slug);
+  if (!deleted) {
+    return false;
+  }
+
+  clearNewsCaches();
+  return true;
+}
+
 module.exports = {
+  deleteNews,
   listNews,
   getNewsBySlug,
-  publishNews
+  publishNews,
+  updateNews
 };

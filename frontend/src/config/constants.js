@@ -1,4 +1,8 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 export const PAGE_SIZE = 20;
 export const CATEGORIES = ['World', 'Business', 'Technology', 'Health', 'Climate', 'Culture'];
-export const APP_TABS = ['home', 'news', 'publish'];
+export const APP_TABS = ['home', 'news'];
+export const AUTH_STORAGE_KEY = 'cloud-news-auth';
+export const USERS_STORAGE_KEY = 'cloud-news-users';
+export const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
+export const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || '';

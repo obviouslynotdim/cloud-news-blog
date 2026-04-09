@@ -1,25 +1,22 @@
 import { theme } from '../../theme/theme';
 
-export function HeroSection({ setTab }) {
+export function HeroSection({ setTab, authUser }) {
   return (
-    <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-cyan-700 to-sky-900 p-8 text-white shadow-glow md:p-12">
-      <p className="text-xs font-bold uppercase tracking-[0.28em] text-teal-100">{theme.tagline}</p>
-      <h1 className="mt-3 max-w-3xl font-serif text-4xl leading-tight md:text-5xl">
-        Read global blog news with clear context, not noisy headlines.
-      </h1>
-      <p className="mt-4 max-w-2xl text-cyan-50/95">
-        Track world news, creator stories, product updates, and practical insight in one professional feed.
+    <section className="overflow-hidden rounded-xl border border-zinc-300 bg-white p-8 shadow-sm md:p-10">
+      <p className="inline-block border-b-4 border-[#b80000] pb-1 text-xs font-bold uppercase tracking-[0.3em] text-zinc-700">{theme.tagline}</p>
+      <h1 className="mt-4 max-w-4xl font-serif text-4xl leading-tight text-zinc-950 md:text-5xl">News that feels factual, focused, and easy to scan.</h1>
+      <p className="mt-4 max-w-2xl text-zinc-600">
+        Follow global updates with concise summaries and full story context in one clean newsroom experience.
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
-        <button className="rounded-xl bg-amber-400 px-5 py-3 font-extrabold text-slate-900" onClick={() => setTab('news')}>
+        <button className="rounded-md bg-zinc-900 px-5 py-3 text-sm font-extrabold text-white" onClick={() => setTab('news')}>
           Browse News
         </button>
-        <button
-          className="rounded-xl border border-white/40 bg-white/10 px-5 py-3 font-extrabold text-white backdrop-blur"
-          onClick={() => setTab('publish')}
-        >
-          Publish Story
-        </button>
+        {!authUser ? (
+          <button className="rounded-md border border-zinc-300 bg-zinc-50 px-5 py-3 text-sm font-extrabold text-zinc-900" onClick={() => setTab('auth')}>
+            Login or Register
+          </button>
+        ) : null}
       </div>
     </section>
   );

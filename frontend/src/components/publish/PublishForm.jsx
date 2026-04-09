@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CATEGORIES } from '../../config/constants';
 import { buildApiUrl } from '../../utils/api';
 
-export function PublishForm({ onCreated }) {
+export function PublishForm({ onCreated, onPublished }) {
   const fileInputRef = useRef(null);
   const [form, setForm] = useState({
     title: '',
@@ -105,6 +105,7 @@ export function PublishForm({ onCreated }) {
     setStatus('Published successfully');
     setForm({ title: '', summary: '', category: 'World', author: '', content: '' });
     resetImageSelection();
+    onPublished?.(result.post);
     onCreated(result.post.slug);
   }
 

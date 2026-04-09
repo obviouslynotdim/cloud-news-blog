@@ -1,4 +1,4 @@
 export const theme = {
-  brandName: 'Global Blog News',
-  tagline: 'Daily global intelligence'
+  brandName: 'Daily Global News',
+  tagline: 'Daily briefings'
 };
