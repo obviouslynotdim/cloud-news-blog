@@ -45,12 +45,12 @@ cd "$APP_DIR"
 git clone ${repo_url} repo
 
 cd repo/frontend
-npm ci
+npm install
 npm run build
 cd "$APP_DIR/repo"
 
 cd backend
-npm ci
+npm install
 
 # ── environment file ────────────────────────────────────────────
 cat > "$APP_DIR/.env" <<EOF
