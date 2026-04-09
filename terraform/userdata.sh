@@ -1,5 +1,7 @@
 #!/bin/bash
 set -euo pipefail
+exec > >(tee /var/log/userdata.log | logger -t userdata) 2>&1
+echo "=== userdata.sh started at $(date) ==="
 
 # ── system packages ─────────────────────────────────────────────
 dnf update -y
@@ -85,3 +87,4 @@ EOF
 
 systemctl daemon-reload
 systemctl enable cloud-news-blog
+systemctl start cloud-news-blog
