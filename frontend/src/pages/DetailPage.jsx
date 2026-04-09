@@ -1,5 +1,5 @@
 import { StoryDetail } from '../components/detail/StoryDetail';
 
-export function DetailPage({ post, onBack }) {
-  return <StoryDetail post={post} onBack={onBack} />;
+export function DetailPage({ post, backHref }) {
+  return <StoryDetail post={post} backHref={backHref} />;
 }

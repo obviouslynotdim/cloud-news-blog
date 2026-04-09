@@ -42,10 +42,6 @@ export function useNewsFeed(refreshSignal = 0) {
   }, [filters.q, filters.category, page, refreshSignal]);
 
   useEffect(() => {
-    setPage(1);
-  }, [filters.q, filters.category]);
-
-  useEffect(() => {
     loadPosts();
   }, [loadPosts]);
 

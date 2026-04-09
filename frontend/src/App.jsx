@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { AuthPanel } from './components/auth/AuthPanel';
 import { AppHeader } from './components/layout/AppHeader';
 import { AppShell } from './components/layout/AppShell';
@@ -25,16 +26,45 @@ function readStoredUsers() {
   }
 }
 
+function DetailRoute({ posts, ensurePostLoaded }) {
+  const { slug = '' } = useParams();
+
+  useEffect(() => {
+    if (!slug) {
+      return;
+    }
+
+    ensurePostLoaded(slug);
+  }, [slug, ensurePostLoaded]);
+
+  const selectedPost = useMemo(() => posts.find((post) => post.slug === slug), [posts, slug]);
+
+  return <DetailPage post={selectedPost} backHref="/news" />;
+}
+
+function AuthRoute({ status, onLogin, onRegister }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const mode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+
+  function setMode(nextMode) {
+    const params = new URLSearchParams(searchParams);
+    params.set('mode', nextMode);
+    setSearchParams(params, { replace: true });
+  }
+
+  return <AuthPanel mode={mode} setMode={setMode} onLogin={onLogin} onRegister={onRegister} status={status} />;
+}
+
 export default function App() {
-  const [tab, setTab] = useState('home');
-  const [activeSlug, setActiveSlug] = useState('');
-  const [authMode, setAuthMode] = useState('login');
   const [authStatus, setAuthStatus] = useState('');
   const [authUser, setAuthUser] = useState(() => readStoredAuth());
   const [newsRefreshSignal, setNewsRefreshSignal] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { filters, setFilters, posts, loading, setPage, pagination, ensurePostLoaded } = useNewsFeed(newsRefreshSignal);
 
-  const selectedPost = useMemo(() => posts.find((post) => post.slug === activeSlug), [posts, activeSlug]);
+  const isNewsListRoute = location.pathname === '/news';
 
   useEffect(() => {
     if (!authUser) {
@@ -45,22 +75,65 @@ export default function App() {
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
   }, [authUser]);
 
+  useEffect(() => {
+    if (!isNewsListRoute) {
+      return;
+    }
+
+    const nextQ = searchParams.get('q') || '';
+    const nextCategory = searchParams.get('category') || '';
+    const parsedPage = Number.parseInt(searchParams.get('page') || '1', 10);
+    const nextPage = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+
+    if (filters.q !== nextQ || filters.category !== nextCategory) {
+      setFilters((prev) => ({ ...prev, q: nextQ, category: nextCategory }));
+    }
+
+    setPage((prevPage) => (prevPage === nextPage ? prevPage : nextPage));
+  }, [isNewsListRoute, searchParams, filters.q, filters.category, setFilters, setPage]);
+
+  useEffect(() => {
+    if (!isNewsListRoute) {
+      return;
+    }
+
+    const params = new URLSearchParams();
+    if (filters.q) {
+      params.set('q', filters.q);
+    }
+    if (filters.category) {
+      params.set('category', filters.category);
+    }
+    if (pagination.page > 1) {
+      params.set('page', String(pagination.page));
+    }
+
+    if (params.toString() !== searchParams.toString()) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [isNewsListRoute, filters.q, filters.category, pagination.page, searchParams, setSearchParams]);
+
+  function handleNewsFiltersChange(updater) {
+    setFilters((prev) => {
+      const nextFilters = typeof updater === 'function' ? updater(prev) : updater;
+      return nextFilters;
+    });
+    setPage(1);
+  }
+
   async function openStory(slug) {
-    await ensurePostLoaded(slug);
-    setActiveSlug(slug);
-    setTab('detail');
+    navigate(`/news/${slug}`);
   }
 
   function openAuth(mode = 'login') {
-    setAuthMode(mode);
     setAuthStatus('');
-    setTab('auth');
+    navigate(`/auth?mode=${mode}`);
   }
 
   function logout() {
     setAuthUser(null);
     setAuthStatus('You have been signed out.');
-    setTab('home');
+    navigate('/');
   }
 
   async function login({ username, password }) {
@@ -84,7 +157,7 @@ export default function App() {
 
       setAuthUser({ username: normalizedUsername, role: 'admin' });
       setAuthStatus('Admin login successful.');
-      setTab('home');
+      navigate('/');
       return;
     }
 
@@ -103,7 +176,7 @@ export default function App() {
 
     setAuthUser({ username: normalizedUsername, role: 'user' });
     setAuthStatus('User login successful.');
-    setTab('home');
+    navigate('/');
   }
 
   async function register({ username, password, confirmPassword }) {
@@ -133,39 +206,44 @@ export default function App() {
     const nextUsers = [...users, { username: normalizedUsername, password }];
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(nextUsers));
     setAuthStatus('Registration successful. You can now login as user.');
-    setAuthMode('login');
+    navigate('/auth?mode=login', { replace: true });
   }
 
   return (
     <AppShell>
-      <AppHeader tab={tab} setTab={setTab} authUser={authUser} onOpenAuth={openAuth} onLogout={logout} />
+      <AppHeader authUser={authUser} onOpenAuth={openAuth} onLogout={logout} />
 
-      {tab === 'home' ? <HomePage setTab={setTab} posts={posts} onOpenStory={openStory} authUser={authUser} /> : null}
-
-      {tab === 'news' ? (
-        <NewsPage
-          filters={filters}
-          setFilters={setFilters}
-          loading={loading}
-          posts={posts}
-          pagination={pagination}
-          setPage={setPage}
-          onOpenStory={openStory}
+      <Routes>
+        <Route path="/" element={<HomePage onBrowseNews={() => navigate('/news')} onOpenAuth={openAuth} posts={posts} onOpenStory={openStory} authUser={authUser} />} />
+        <Route
+          path="/news"
+          element={
+            <NewsPage
+              filters={filters}
+              setFilters={handleNewsFiltersChange}
+              loading={loading}
+              posts={posts}
+              pagination={pagination}
+              setPage={setPage}
+              onOpenStory={openStory}
+            />
+          }
         />
-      ) : null}
-
-      {tab === 'publish' ? (
-        <PublishPage
-          onCreated={openStory}
-          authUser={authUser}
-          onOpenAuth={openAuth}
-          onContentChanged={() => setNewsRefreshSignal((prev) => prev + 1)}
+        <Route path="/news/:slug" element={<DetailRoute posts={posts} ensurePostLoaded={ensurePostLoaded} />} />
+        <Route
+          path="/publish"
+          element={
+            <PublishPage
+              onCreated={openStory}
+              authUser={authUser}
+              onOpenAuth={openAuth}
+              onContentChanged={() => setNewsRefreshSignal((prev) => prev + 1)}
+            />
+          }
         />
-      ) : null}
-      {tab === 'auth' ? (
-        <AuthPanel mode={authMode} setMode={setAuthMode} onLogin={login} onRegister={register} status={authStatus} />
-      ) : null}
-      {tab === 'detail' ? <DetailPage post={selectedPost} onBack={() => setTab('news')} /> : null}
+        <Route path="/auth" element={<AuthRoute status={authStatus} onLogin={login} onRegister={register} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </AppShell>
   );
 }

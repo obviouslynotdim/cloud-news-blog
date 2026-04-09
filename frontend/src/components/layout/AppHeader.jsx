@@ -1,45 +1,38 @@
-import { APP_TABS } from '../../config/constants';
+import { Link, NavLink } from 'react-router-dom';
 import { theme } from '../../theme/theme';
 
-export function AppHeader({ tab, setTab, authUser, onOpenAuth, onLogout }) {
+const navItemClassName = ({ isActive }) =>
+  `rounded px-4 py-2 text-sm font-bold capitalize transition ${isActive ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-100'}`;
+
+export function AppHeader({ authUser, onOpenAuth, onLogout }) {
   return (
     <header className="mx-auto mb-6 w-full max-w-6xl border-b border-zinc-200 bg-transparent py-4">
       <div className="mb-3 flex items-center justify-between border-b border-zinc-200 pb-3">
-        <button className="text-sm font-semibold uppercase tracking-[0.28em] text-zinc-700" onClick={() => setTab('home')}>
+        <Link className="text-sm font-semibold uppercase tracking-[0.28em] text-zinc-700" to="/">
           {theme.tagline}
-        </button>
+        </Link>
         <p className="hidden text-xs font-medium text-zinc-500 md:block">Trusted updates, clear context</p>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button className="flex items-center gap-3" onClick={() => setTab('home')}>
+        <Link className="flex items-center gap-3" to="/">
           <img src="/assets/logo.png" alt="Daily Global News logo" className="h-10 w-10 rounded-md border border-zinc-300 object-cover" />
           <span className="text-2xl font-black uppercase tracking-tight text-zinc-950">{theme.brandName}</span>
-        </button>
+        </Link>
 
         <div className="flex flex-wrap items-center gap-2">
           <nav className="flex rounded-md border border-zinc-300 bg-white p-1">
-            {APP_TABS.map((item) => (
-              <button
-                key={item}
-                onClick={() => setTab(item)}
-                className={`rounded px-4 py-2 text-sm font-bold capitalize transition ${
-                  tab === item ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-100'
-                }`}
-              >
-                {item}
-              </button>
-            ))}
+            <NavLink className={navItemClassName} to="/" end>
+              Home
+            </NavLink>
+            <NavLink className={navItemClassName} to="/news">
+              News
+            </NavLink>
 
             {authUser?.role === 'admin' ? (
-              <button
-                onClick={() => setTab('publish')}
-                className={`rounded px-4 py-2 text-sm font-bold transition ${
-                  tab === 'publish' ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-100'
-                }`}
-              >
+              <NavLink className={navItemClassName} to="/publish">
                 Publish
-              </button>
+              </NavLink>
             ) : null}
           </nav>
 
