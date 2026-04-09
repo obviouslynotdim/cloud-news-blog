@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearch
 import { AuthPanel } from './components/auth/AuthPanel';
 import { AppHeader } from './components/layout/AppHeader';
 import { AppShell } from './components/layout/AppShell';
-import { ADMIN_PASSWORD, ADMIN_USERNAME, AUTH_STORAGE_KEY, USERS_STORAGE_KEY } from './config/constants';
+import { ADMIN_PASSWORD, ADMIN_USERNAME, AUTH_STORAGE_KEY, THEME_STORAGE_KEY, USERS_STORAGE_KEY } from './config/constants';
 import { useNewsFeed } from './hooks/useNewsFeed';
 import { DetailPage } from './pages/DetailPage';
 import { HomePage } from './pages/HomePage';
@@ -24,6 +24,22 @@ function readStoredUsers() {
   } catch {
     return [];
   }
+}
+
+function getInitialTheme() {
+  try {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === 'dark') {
+      return true;
+    }
+    if (storedTheme === 'light') {
+      return false;
+    }
+  } catch {
+    // Ignore storage errors and use system preference.
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 function DetailRoute({ posts, ensurePostLoaded }) {
@@ -58,6 +74,7 @@ function AuthRoute({ status, onLogin, onRegister }) {
 export default function App() {
   const [authStatus, setAuthStatus] = useState('');
   const [authUser, setAuthUser] = useState(() => readStoredAuth());
+  const [isDarkMode, setIsDarkMode] = useState(() => getInitialTheme());
   const [newsRefreshSignal, setNewsRefreshSignal] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
@@ -74,6 +91,20 @@ export default function App() {
 
     localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser));
   }, [authUser]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, isDarkMode ? 'dark' : 'light');
+    } catch {
+      // Ignore storage errors for theme persistence.
+    }
+  }, [isDarkMode]);
+
+  function toggleTheme() {
+    setIsDarkMode((prev) => !prev);
+  }
 
   useEffect(() => {
     if (!isNewsListRoute) {
@@ -211,7 +242,7 @@ export default function App() {
 
   return (
     <AppShell>
-      <AppHeader authUser={authUser} onOpenAuth={openAuth} onLogout={logout} />
+      <AppHeader authUser={authUser} onOpenAuth={openAuth} onLogout={logout} isDarkMode={isDarkMode} onToggleTheme={toggleTheme} />
 
       <Routes>
         <Route path="/" element={<HomePage onBrowseNews={() => navigate('/news')} onOpenAuth={openAuth} posts={posts} onOpenStory={openStory} authUser={authUser} />} />
