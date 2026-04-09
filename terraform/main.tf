@@ -79,6 +79,7 @@ module "compute" {
     project_name   = var.project_name
     environment    = var.environment
     aws_region     = var.aws_region
+    repo_url       = var.repo_url
     s3_bucket_name = module.storage.bucket_name
     db_host        = module.database.db_endpoint
     db_port        = module.database.db_port

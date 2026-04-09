@@ -35,9 +35,20 @@ CWCFG
 systemctl enable amazon-cloudwatch-agent
 systemctl start amazon-cloudwatch-agent
 
-# ── application directory ───────────────────────────────────────
+# ── clone & build app ───────────────────────────────────────────
 APP_DIR="/opt/cloud-news-blog"
 mkdir -p "$APP_DIR"
+
+cd "$APP_DIR"
+git clone ${repo_url} repo
+
+cd repo/frontend
+npm ci
+npm run build
+cd "$APP_DIR/repo"
+
+cd backend
+npm ci
 
 # ── environment file ────────────────────────────────────────────
 cat > "$APP_DIR/.env" <<EOF
@@ -50,30 +61,6 @@ DATABASE_URL=postgresql://${db_username}:${db_password}@${db_host}:${db_port}/${
 DB_SSL=true
 EOF
 chmod 600 "$APP_DIR/.env"
-
-# ── deploy instructions ─────────────────────────────────────────
-cat > "$APP_DIR/deploy.sh" <<'DEPLOY'
-#!/bin/bash
-set -euo pipefail
-cd /opt/cloud-news-blog
-
-# Pull code (replace URL with your repo)
-# git clone https://github.com/YOUR_USER/cloud-news-blog.git repo || (cd repo && git pull)
-
-# If repo already cloned to /opt/cloud-news-blog/repo:
-cd repo 2>/dev/null || { echo "Clone your repo first"; exit 1; }
-
-# Build frontend
-cd frontend && npm ci && npm run build && cd ..
-
-# Install backend deps & copy frontend build
-cd backend && npm ci
-cp -r ../frontend/dist ./public
-
-# Start with systemd
-sudo systemctl restart cloud-news-blog
-DEPLOY
-chmod +x "$APP_DIR/deploy.sh"
 
 # ── systemd service ─────────────────────────────────────────────
 cat > /etc/systemd/system/cloud-news-blog.service <<EOF

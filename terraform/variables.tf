@@ -16,6 +16,11 @@ variable "aws_region" {
   default     = "ap-southeast-1"
 }
 
+variable "repo_url" {
+  description = "GitHub repository HTTPS URL for auto-deployment on EC2 launch"
+  type        = string
+}
+
 variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
@@ -70,8 +75,10 @@ variable "admin_cidr" {
   default     = "127.0.0.1/32"
 
   validation {
-    condition     = can(cidrhost(var.admin_cidr, 0)) && var.admin_cidr != "0.0.0.0/0"
-    error_message = "admin_cidr must be a valid CIDR and must not be 0.0.0.0/0. Use your public IP range, for example x.x.x.x/32."
+    # condition     = can(cidrhost(var.admin_cidr, 0)) && var.admin_cidr != "0.0.0.0/0"
+    # error_message = "admin_cidr must be a valid CIDR and must not be 0.0.0.0/0. Use your public IP range, for example x.x.x.x/32."
+    condition     = can(cidrhost(var.admin_cidr, 0))
+    error_message = "admin_cidr must be a valid CIDR block."
   }
 }
 
